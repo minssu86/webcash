@@ -1,4 +1,5 @@
 # 3차 평가 (통신 과제)
+Only pojo 기반 프로그램 개발
 
 - 민수 ( Battle Tetris )
     
