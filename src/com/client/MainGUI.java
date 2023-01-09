@@ -455,16 +455,16 @@ public class MainGUI extends Frame{
 				}
 			}
 		} else if (completeLine.size() == 3){
-			for (int i = completeLine.get(0); i > completeLine.get(0)-3; i--){
-				for (int j = 0; j<10; j++){
-					if(i<=4){
+			for (int i = completeLine.get(0); i > completeLine.get(0)-3; i--) {
+				for (int j = 0; j < 10; j++) {
+					if (i <= 4) {
 						playGroundLabel[i][j].setBackground(new Color(12, 6, 6));
-					} else if(!completeLine.contains(i+1)){
-						playGroundLabel[i][j].setBackground(playGroundLabel[i-1][j].getBackground());
-					}else if(!completeLine.contains(i-2)){
-						playGroundLabel[i][j].setBackground(playGroundLabel[i-2][j].getBackground());
-					}else if(!completeLine.contains(i-3)){
-						playGroundLabel[i][j].setBackground(playGroundLabel[i-3][j].getBackground());
+					} else if (!completeLine.contains(i + 1)) {
+						playGroundLabel[i][j].setBackground(playGroundLabel[i - 1][j].getBackground());
+					} else if (!completeLine.contains(i - 2)) {
+						playGroundLabel[i][j].setBackground(playGroundLabel[i - 2][j].getBackground());
+					} else if (!completeLine.contains(i - 3)) {
+						playGroundLabel[i][j].setBackground(playGroundLabel[i - 3][j].getBackground());
 					}
 				}
 			}

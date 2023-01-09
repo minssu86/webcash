@@ -285,8 +285,6 @@ public abstract class Block implements Serializable {
     	this.topMenuLabel[blockNum[6]+i][blockNum[7]].setBackground(color);
 	}
     
-    
-    
 }
 
 
