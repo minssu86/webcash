@@ -18,6 +18,7 @@ public abstract class Block implements Serializable {
     public int[] b = new int[2];
     public int[] c = new int[2];
     public int[] d = new int[2];
+	int blockDirection;
     
     // idx 1 = 가로
     // idx 0 = 세로
