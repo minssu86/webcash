@@ -44,38 +44,44 @@ public class Block1 extends Block {
     }
 
     private void direction1() {
-        int a0 = a[0] -1;
-        int a1 = a[1] +1;
-        int c0 = c[0] +1;
-        int c1 = c[1] -1;
-        int d0 = d[0] +2;
-        int d1 = d[1] -2;
-        boolean boo = checkSide(d1);
+        a[0] -=1;
+        a[1] +=1;
+        c[0] +=1;
+        c[1] -=1;
+        d[0] +=2;
+        d[1] -=2;
+//        int a0 = a[0] -1;
+//        int a1 = a[1] +1;
+//        int c0 = c[0] +1;
+//        int c1 = c[1] -1;
+//        int d0 = d[0] +2;
+//        int d1 = d[1] -2;
+//        boolean boo = checkSide(d1);
 
     }
 
-    private boolean checkSide(int d1) {
-        if(d1 == 9){
-            a[1] -= 2;
-            b[1] -= 2;
-            c[1] -= 2;
-            d[1] -= 2;
-            return false;
-        }else if(d1 == 8){
-            a[1] -= 1;
-            b[1] -= 1;
-            c[1] -= 1;
-            d[1] -= 1;
-            return false;
-        }else if(d1 == 0) {
-            a[1] += 1;
-            b[1] += 1;
-            c[1] += 1;
-            d[1] += 1;
-            return false;
-        }
-        return true;
-    }
+//    private boolean checkSide(int d1) {
+//        if(d1 == 9){
+//            a[1] -= 2;
+//            b[1] -= 2;
+//            c[1] -= 2;
+//            d[1] -= 2;
+//            return false;
+//        }else if(d1 == 8){
+//            a[1] -= 1;
+//            b[1] -= 1;
+//            c[1] -= 1;
+//            d[1] -= 1;
+//            return false;
+//        }else if(d1 == 0) {
+//            a[1] += 1;
+//            b[1] += 1;
+//            c[1] += 1;
+//            d[1] += 1;
+//            return false;
+//        }
+//        return true;
+//    }
 
     private boolean checkBelowBlock(int i, int j) {
         boolean isOk = true;

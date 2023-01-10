@@ -14,6 +14,9 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.*;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +30,7 @@ import com.client.block.Block4;
 import com.client.block.Block5;
 import com.client.block.Block6;
 import com.client.block.Block7;
+import com.server.GameOver;
 
 public class MainGUI extends Frame{
 	// Basic BackGround
@@ -50,6 +54,8 @@ public class MainGUI extends Frame{
 	Label scoreLabel;
 	Label[][] playGroundLabel = new Label[20][10];
 	Block block;
+
+	Boolean isReady;
 	
 	MainGUI(){
 //		==========================================================================
@@ -210,16 +216,76 @@ public class MainGUI extends Frame{
 				isGameOn = false;
 				isWin = false;
 				speedLevel = 0;
+				isReady = false;
 				new CountDown(playGroundLabel);
-				
-				// 시간 셋팅 -------------------------------------------
-				Thread timeStart = new Thread(new Runnable() {
-					@Override
-					public void run() {
-						setCountTime();
+
+				// socket 연결
+				byte[] arr = {(byte)192,(byte)168,(byte)240,127};
+				InetAddress addr = null;
+				int port = 8080;
+				InputStream is = null;
+				ObjectInputStream ois = null;
+				OutputStream os= null;
+				ObjectOutputStream oos = null;
+				Socket socket = null;
+				Object object = null;
+				try {
+					addr = InetAddress.getByAddress(arr);
+					socket = new Socket(addr, port);
+					os = socket.getOutputStream();
+					is = socket.getInputStream();
+					oos = new ObjectOutputStream(os);
+					ois = new ObjectInputStream(is);
+
+
+					while (true){
+						if(!isReady){
+							oos.writeObject(true);
+							isReady = true;
+							oos.flush();
+						}
+						object = ois.readObject();
+						if(isReady && object instanceof String){
+							System.out.println("왔나?3");
+							String temp = object.toString();
+							System.out.println(temp);
+							timeLabel.setText(temp);
+						}
+//						if(object instanceof Boolean){
+//							System.out.println("왔나?2");
+//							if((Boolean) object){
+//								isGameOn = true;
+//							} else {
+//								continue;
+//							}
+//							break;
+//						}
+						if (object instanceof GameOver) break;
 					}
-				});
-				timeStart.start();
+
+				} catch (IOException | ClassNotFoundException ex) {
+					throw new RuntimeException(ex);
+				} finally {
+					try {
+						if(oos!=null)oos.close();
+						if(ois!=null)ois.close();
+						if(os!=null)os.close();
+						if(is!=null)is.close();
+						if(socket!=null)socket.close();
+					} catch (IOException ex) {
+						throw new RuntimeException(ex);
+					}
+				}
+
+
+				// 시간 셋팅 -------------------------------------------
+//				Thread timeStart = new Thread(new Runnable() {
+//					@Override
+//					public void run() {
+//						setCountTime();
+//					}
+//				});
+//				timeStart.start();
 				// 게임 시작 -------------------------------------------
 				requestFocusInWindow();
 				playGame();
@@ -292,29 +358,29 @@ public class MainGUI extends Frame{
 	
 	
 //	------------------------------------------------------------------------------
-//	play time process
+//	play time process !! 서버로 코드 넘기는중 !!
 //	------------------------------------------------------------------------------
-	private void setCountTime() {
-		int timeCount = 0;
-		isGameOn = true;
-		while(isGameOn) {
-			try {
-				Thread.sleep(1000);
-				timeCount++;
-				String min = "0" + (timeCount/60);
-				String sec = "";
-				if(timeCount%60 < 10) {
-					sec = "0" + (timeCount%60);
-				} else {
-					sec = timeCount%60 + "";
-				}
-				timeLabel.setText(min + ":" + sec);
-				if(timeCount == setPlayTime)isGameOn = false;
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-		}
-	}
+//	private void setCountTime() {
+//		int timeCount = 0;
+//		isGameOn = true;
+//		while(isGameOn) {
+//			try {
+//				Thread.sleep(1000);
+//				timeCount++;
+//				String min = "0" + (timeCount/60);
+//				String sec = "";
+//				if(timeCount%60 < 10) {
+//					sec = "0" + (timeCount%60);
+//				} else {
+//					sec = timeCount%60 + "";
+//				}
+//				timeLabel.setText(min + ":" + sec);
+//				if(timeCount == setPlayTime)isGameOn = false;
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//		}
+//	}
 
 //	------------------------------------------------------------------------------
 //	game play process
