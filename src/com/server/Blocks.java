@@ -18,7 +18,7 @@ public class Blocks {
 
     public void makeBlock(){
         blockList = new LinkedList<>();
-        for (int i = 0; i<50;i++) {
+        for (int i = 0; i<300;i++) {
             Block block = blockArr[new Random().nextInt(6)];
             blockList.add(block);
         }

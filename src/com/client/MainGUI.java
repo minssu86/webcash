@@ -56,6 +56,7 @@ public class MainGUI extends Frame{
 	Block block;
 
 	Boolean isReady;
+	boolean isBeforeBlockStart;
 	
 	MainGUI(){
 //		==========================================================================
@@ -217,81 +218,88 @@ public class MainGUI extends Frame{
 				isWin = false;
 				speedLevel = 0;
 				isReady = false;
+				isBeforeBlockStart = true;
 				new CountDown(playGroundLabel);
 
-				// socket 연결
-				byte[] arr = {(byte)192,(byte)168,(byte)240,127};
-				InetAddress addr = null;
-				int port = 8080;
-				InputStream is = null;
-				ObjectInputStream ois = null;
-				OutputStream os= null;
-				ObjectOutputStream oos = null;
-				Socket socket = null;
-				Object object = null;
-				try {
-					addr = InetAddress.getByAddress(arr);
-					socket = new Socket(addr, port);
-					os = socket.getOutputStream();
-					is = socket.getInputStream();
-					oos = new ObjectOutputStream(os);
-					ois = new ObjectInputStream(is);
+				// 게임 스타트 및 타임 셋팅
+				Thread gameStartThread = new Thread(new Runnable() {
+					@Override
+					public void run() {
 
+						// socket 연결
+						byte[] arr = {(byte)192,(byte)168,(byte)240,127};
+						InetAddress addr = null;
+						int port = 8080;
+						InputStream is = null;
+						ObjectInputStream ois = null;
+						OutputStream os= null;
+						ObjectOutputStream oos = null;
+						Socket socket = null;
+						Object object = null;
 
-					while (true){
-						if(!isReady){
-							oos.writeObject(true);
-							isReady = true;
-							oos.flush();
-						}
-						object = ois.readObject();
-						if(isReady && object instanceof String){
-							System.out.println("왔나?3");
-							String temp = object.toString();
-							System.out.println(temp);
-							timeLabel.setText(temp);
-						}
-//						if(object instanceof Boolean){
-//							System.out.println("왔나?2");
-//							if((Boolean) object){
-//								isGameOn = true;
-//							} else {
-//								continue;
-//							}
-//							break;
+						try {
+							addr = InetAddress.getByAddress(arr);
+							socket = new Socket(addr, port);
+							os = socket.getOutputStream();
+							is = socket.getInputStream();
+							oos = new ObjectOutputStream(os);
+							ois = new ObjectInputStream(is);
+
+							do {
+								if (!isReady) {
+									oos.writeObject(true);
+									isReady = true;
+									oos.flush();
+								}
+								object = ois.readObject();
+								if (isReady && object instanceof String) {
+									System.out.println("왔나?3");
+									String temp = object.toString();
+									System.out.println(temp);
+									timeLabel.setText(temp);
+									if (!isGameOn) isGameOn = true;
+								}
+//						if(isGameOn && isBeforeBlockStart){
+//							isBeforeBlockStart = false;
+//							requestFocusInWindow();
+//							Thread palyGameThread = new Thread(new Runnable() {
+//								@Override
+//								public void run() {
+//									playGame();
+//								}
+//							});
+//							palyGameThread.start();
 //						}
-						if (object instanceof GameOver) break;
+							} while (!(object instanceof GameOver));
+
+						} catch (IOException | ClassNotFoundException ex) {
+							throw new RuntimeException(ex);
+						} finally {
+							try {
+								if(oos!=null)oos.close();
+								if(ois!=null)ois.close();
+								if(os!=null)os.close();
+								if(is!=null)is.close();
+								if(socket!=null)socket.close();
+							} catch (IOException ex) {
+								throw new RuntimeException(ex);
+							}
+						}
+
 					}
-
-				} catch (IOException | ClassNotFoundException ex) {
-					throw new RuntimeException(ex);
-				} finally {
-					try {
-						if(oos!=null)oos.close();
-						if(ois!=null)ois.close();
-						if(os!=null)os.close();
-						if(is!=null)is.close();
-						if(socket!=null)socket.close();
-					} catch (IOException ex) {
-						throw new RuntimeException(ex);
-					}
-				}
+				});
 
 
-				// 시간 셋팅 -------------------------------------------
-//				Thread timeStart = new Thread(new Runnable() {
-//					@Override
-//					public void run() {
-//						setCountTime();
-//					}
-//				});
-//				timeStart.start();
+
+
 				// 게임 시작 -------------------------------------------
+
+
 				requestFocusInWindow();
 				playGame();
 			}
 		});
-		
+
 		endButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
