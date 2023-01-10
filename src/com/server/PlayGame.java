@@ -11,23 +11,25 @@ public class PlayGame {
     GameOver gameOver;
     PlayGame(){
         isGameOn = false;
-        readyCount = 0;
+        readyCount = 1;
+        gameOver = new GameOver();
     }
     public static void main(String[] args) {
         PlayGame playGame = new PlayGame();
         Blocks blocks = new Blocks();
         PlayTime playTime = new PlayTime();
+        Thread playTimeTread = new Thread(playTime);
 
         // 게임 시작 & 시간 셋팅
         ServerSocket serve = null;
         try{
             serve = new ServerSocket(8080);
-            while (true){
+            while(true){
+                System.out.println("계속 도나?");
                 final Socket socket = serve.accept();
                 Thread gameStartThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
-                        System.out.println("현재 쓰레드 : " + Thread.currentThread());
                         InetAddress inet = null;
                         OutputStream os = null;
                         ObjectOutputStream oos = null;
@@ -41,54 +43,48 @@ public class PlayGame {
                             ois = new ObjectInputStream(is);
                             oos = new ObjectOutputStream(os);
                             while(true){
-//                                System.out.println("준비 인원 : " + playGame.readyCount);
+                                System.out.println("여긴 왔음");
                                 Object object = null;
-
                                 // 플레이어 각자 접속 하여 게임준비
                                 if(!isReady){
                                     object=ois.readObject();
-                                    System.out.println(object.toString());
                                     if(object instanceof Boolean){
-                                        if((Boolean) object){
+                                        if(Boolean.TRUE.equals(object)){
                                             isReady = true;
                                             playGame.readyCount++;
                                             // 준비된 플레이어 카운트
                                             if(playGame.readyCount==2){
-                                                System.out.println("여기는 게임시작 셋팅");
                                                 playGame.isGameOn = true;
-                                                Thread timeThread = new Thread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        try {
-                                                            playTime.timeStart();
-                                                        } catch (InterruptedException e) {
-                                                            throw new RuntimeException(e);
-                                                        }
-                                                    }
-                                                });
-                                                timeThread.start();
+                                                playTimeTread.start();
+//                                                Thread timeThread = new Thread(new Runnable() {
+//                                                    @Override
+//                                                    public void run() {
+//                                                        try {
+//                                                            playTime.timeStart();
+//                                                        } catch (InterruptedException e) {
+//                                                            throw new RuntimeException(e);
+//                                                        }
+//                                                    }
+//                                                });
+//                                                timeThread.start();
                                             }
                                             blocks.makeBlock();
+                                            System.out.println(blocks.getBlockList());
                                             oos.writeObject(blocks.getBlockList());
-                                            continue;
-                                        } else {
-                                            break;
                                         }
                                     }
                                 }
-
                                 if(playGame.isGameOn) {
                                     String temp = playTime.responseTime;
                                     oos.writeObject(temp);
                                     oos.flush();
                                 }
-
                                 Thread.sleep(300);
-
+                                if(playGame.gameOver.isGameOver)break;
                             }
-
-                        } catch (Exception e){
+                        } catch (InterruptedException | IOException | ClassNotFoundException e){
                             e.printStackTrace();
+                            Thread.currentThread().interrupt();
                         } finally {
                             try {
                                 if(os!=null)os.close();
@@ -96,18 +92,18 @@ public class PlayGame {
                                 if(socket!=null)socket.close();
                             } catch (Exception e){
                                 e.printStackTrace();
-                                System.out.println("while 문 안");
                             }
                         }
 
                     }
                 });
-                System.out.println("여기는 몇번 오나?");
                 gameStartThread.start();
+
+                System.out.println("끝난다");
+                if(playGame.gameOver.isGameOver)break;
             }
         } catch (IOException e){
             e.printStackTrace();
-            System.out.println("while 문 밖");
         } finally {
             try {
                 if(serve!=null)serve.close();

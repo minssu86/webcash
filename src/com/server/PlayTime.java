@@ -1,8 +1,6 @@
 package com.server;
 
-import java.awt.*;
-
-public class PlayTime {
+public class PlayTime implements Runnable {
     int timeCount;
     String responseTime;
     int endTime;
@@ -24,9 +22,14 @@ public class PlayTime {
             }
             responseTime = min + ":" + sec;
         } while (timeCount != endTime);
-
-
-
     }
 
+    @Override
+    public void run() {
+        try {
+            timeStart();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

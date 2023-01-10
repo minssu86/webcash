@@ -8,15 +8,6 @@ import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.Panel;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-import java.io.*;
-import java.net.InetAddress;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +21,6 @@ import com.client.block.Block4;
 import com.client.block.Block5;
 import com.client.block.Block6;
 import com.client.block.Block7;
-import com.server.GameOver;
 
 public class MainGUI extends Frame{
 	// Basic BackGround
@@ -47,7 +37,6 @@ public class MainGUI extends Frame{
 	Label[][] topMenuLabel;
 	
 	int speedLevel = 0;
-	int setPlayTime = 600;
 	boolean isGameOn=false;
 	boolean isWin = false;
 	Label timeLabel;
@@ -57,6 +46,11 @@ public class MainGUI extends Frame{
 
 	Boolean isReady;
 	boolean isBeforeBlockStart;
+
+	// 버튼
+	Button startButton;
+	Button endButton;
+
 	
 	MainGUI(){
 //		==========================================================================
@@ -181,8 +175,8 @@ public class MainGUI extends Frame{
 		
 		// Button -------------------------------------------
 		Label buttonPaddingTop = new Label();
-		Button startButton = new Button("START");
-		Button endButton = new Button("END");
+		startButton = new Button("START");
+		endButton = new Button("END");
 		Label buttonPaddingBottom = new Label();
 		// font
 		startButton.setFont(fontSizeBig);
@@ -194,119 +188,116 @@ public class MainGUI extends Frame{
 		buttonPanel.add(buttonPaddingBottom);
 		
 		// action
-		startButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				/*
-				  카운트 다운 및 기본 정보 초기화
-
-				  기본 정보 초기화
-				  1. isGameOn = false
-				  2. isWin = false
-				  3. playGroundArr = 기존 블럭 지우기
-				  4. speedLevel = 0
-				  5. 카운트 다운 시작
-
-				  연결 상태 확인을 위해 sever로 부터 카운트 받아 옴
-				  게임 화면에 카운트 다운 5 4 3 2 1
-
-				  TODO : 서버에서 카운트 받아서 처리 해야함 / 1/4일 현재 클라이언트에서 처리 됨
-				  @param playGroundArr
-
-				 */
-				isGameOn = false;
-				isWin = false;
-				speedLevel = 0;
-				isReady = false;
-				isBeforeBlockStart = true;
-				new CountDown(playGroundLabel);
-
-				// 게임 스타트 및 타임 셋팅
-				Thread gameStartThread = new Thread(new Runnable() {
-					@Override
-					public void run() {
-
-						// socket 연결
-						byte[] arr = {(byte)192,(byte)168,(byte)240,127};
-						InetAddress addr = null;
-						int port = 8080;
-						InputStream is = null;
-						ObjectInputStream ois = null;
-						OutputStream os= null;
-						ObjectOutputStream oos = null;
-						Socket socket = null;
-						Object object = null;
-
-						try {
-							addr = InetAddress.getByAddress(arr);
-							socket = new Socket(addr, port);
-							os = socket.getOutputStream();
-							is = socket.getInputStream();
-							oos = new ObjectOutputStream(os);
-							ois = new ObjectInputStream(is);
-
-							do {
-								if (!isReady) {
-									oos.writeObject(true);
-									isReady = true;
-									oos.flush();
-								}
-								object = ois.readObject();
-								if (isReady && object instanceof String) {
-									System.out.println("왔나?3");
-									String temp = object.toString();
-									System.out.println(temp);
-									timeLabel.setText(temp);
-									if (!isGameOn) isGameOn = true;
-								}
-//						if(isGameOn && isBeforeBlockStart){
-//							isBeforeBlockStart = false;
-//							requestFocusInWindow();
-//							Thread palyGameThread = new Thread(new Runnable() {
-//								@Override
-//								public void run() {
-//									playGame();
+//		startButton.addMouseListener(new MouseAdapter() {
+//			@Override
+//			public void mouseClicked(MouseEvent e) {
+//				/*
+//				  카운트 다운 및 기본 정보 초기화
+//
+//				  기본 정보 초기화
+//				  1. isGameOn = false
+//				  2. isWin = false
+//				  3. playGroundArr = 기존 블럭 지우기
+//				  4. speedLevel = 0
+//				  5. 카운트 다운 시작
+//
+//				  연결 상태 확인을 위해 sever로 부터 카운트 받아 옴
+//				  게임 화면에 카운트 다운 5 4 3 2 1
+//
+//				  TODO : 서버에서 카운트 받아서 처리 해야함 / 1/4일 현재 클라이언트에서 처리 됨
+//				  @param playGroundArr
+//
+//				 */
+//				isGameOn = false;
+//				isWin = false;
+//				speedLevel = 0;
+//				isReady = false;
+//				isBeforeBlockStart = true;
+//				new CountDown(playGroundLabel);
+//
+//				// 게임 스타트 및 타임 셋팅
+//				Thread gameStartThread = new Thread(new Runnable() {
+//					@Override
+//					public void run() {
+//						System.out.println("gameStartThread");
+//						// socket 연결
+//						byte[] arr = {(byte)192,(byte)168,(byte)240,127};
+//						InetAddress addr = null;
+//						int port = 8080;
+//						InputStream is = null;
+//						ObjectInputStream ois = null;
+//						OutputStream os= null;
+//						ObjectOutputStream oos = null;
+//						Socket socket = null;
+//						Object object;
+//
+//						try {
+//							addr = InetAddress.getByAddress(arr);
+//							socket = new Socket(addr, port);
+//							os = socket.getOutputStream();
+//							is = socket.getInputStream();
+//							oos = new ObjectOutputStream(os);
+//							ois = new ObjectInputStream(is);
+//
+//							do {
+//								if (!isReady) {
+//									oos.writeObject(true);
+//									isReady = true;
+//									oos.flush();
 //								}
-//							});
-//							palyGameThread.start();
+//								object = ois.readObject();
+//								if (isReady && object instanceof String) {
+//									System.out.println("왔나?3");
+//									String temp = object.toString();
+//									System.out.println(temp);
+//									timeLabel.setText(temp);
+//									if (!isGameOn) isGameOn = true;
+//								}
+////						if(isGameOn && isBeforeBlockStart){
+////							isBeforeBlockStart = false;
+////							requestFocusInWindow();
+////							Thread palyGameThread = new Thread(new Runnable() {
+////								@Override
+////								public void run() {
+////									playGame();
+////								}
+////							});
+////							palyGameThread.start();
+////						}
+//							} while (!(object instanceof GameOver));
+//
+//						} catch (IOException | ClassNotFoundException ex) {
+//							ex.printStackTrace();
+//						} finally {
+//							try {
+//								if(oos!=null)oos.close();
+//								if(ois!=null)ois.close();
+//								if(os!=null)os.close();
+//								if(is!=null)is.close();
+//								if(socket!=null)socket.close();
+//							} catch (IOException ex) {
+//								ex.printStackTrace();
+//							}
 //						}
-							} while (!(object instanceof GameOver));
+//
+//					}
+//				});
+//				gameStartThread.start();
+//
+//				// 게임 시작 -------------------------------------------
+//				requestFocusInWindow();
+//				playGame();
+//
+//			}
+//		});
 
-						} catch (IOException | ClassNotFoundException ex) {
-							throw new RuntimeException(ex);
-						} finally {
-							try {
-								if(oos!=null)oos.close();
-								if(ois!=null)ois.close();
-								if(os!=null)os.close();
-								if(is!=null)is.close();
-								if(socket!=null)socket.close();
-							} catch (IOException ex) {
-								throw new RuntimeException(ex);
-							}
-						}
-
-					}
-				});
-
-
-
-
-				// 게임 시작 -------------------------------------------
-
-
-				requestFocusInWindow();
-				playGame();
-			}
-		});
-
-		endButton.addMouseListener(new MouseAdapter() {
-			@Override
-			public void mouseClicked(MouseEvent e) {
-				// 게임 종료
-				isGameOn = false;
-			}
-		});
+//		endButton.addMouseListener(new MouseAdapter() {
+//			@Override
+//			public void mouseClicked(MouseEvent e) {
+//				// 게임 종료
+//				isGameOn = false;
+//			}
+//		});
 		
 		// UserInfomation -------------------------------------------
 		Label userInfoPaddingTop = new Label();
@@ -321,94 +312,58 @@ public class MainGUI extends Frame{
 		
 //		==========================================================================	
 		
-		addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyPressed(KeyEvent e) {
-				/*
-				  블럭 모션
+//		addKeyListener(new KeyAdapter() {
+//			@Override
+//			public void keyPressed(KeyEvent e) {
+//				/*
+//				  블럭 모션
+//
+//				  1. 블럭이 ""초 마다 한칸씩 아래로 떨어짐
+//				  2. 방향키 ↑ 클릭(38) : 시계 방향으로 블럭 회전
+//				  3. 방향키 → 클릭(39) : 오른쪽으로 한 칸 이동
+//				  4. 방향키 ← 클릭(37) : 왼쪽으로 한 칸 이동
+//				  5. 방향키 ↓ 클릭(40) : 아래로 한 칸 이동
+//				  6. space bar 클릭 (32) : 가장 아래로 이동
+//				 */
+//				if(isGameOn) {
+//					switch (e.getKeyCode()) {
+//					case 32: block.pressSpaceKey(); break;
+//					case 37: block.pressLeftKey(); break;
+//					case 38: block.pressUpKey(); break;
+//					case 39: block.pressRightKey(); break;
+//					case 40: block.pressDownKey(); break;
+//					default: break;
+//					}
+//				}
+//			}
+//		});
 
-				  1. 블럭이 ""초 마다 한칸씩 아래로 떨어짐
-				  2. 방향키 ↑ 클릭(38) : 시계 방향으로 블럭 회전
-				  3. 방향키 → 클릭(39) : 오른쪽으로 한 칸 이동
-				  4. 방향키 ← 클릭(37) : 왼쪽으로 한 칸 이동
-				  5. 방향키 ↓ 클릭(40) : 아래로 한 칸 이동
-				  6. space bar 클릭 (32) : 가장 아래로 이동
-				 */
-				if(isGameOn) {
-					switch (e.getKeyCode()) {
-					case 32: block.pressSpaceKey(); break;
-					case 37: block.pressLeftKey(); break;
-					case 38: block.pressUpKey(); break;
-					case 39: block.pressRightKey(); break;
-					case 40: block.pressDownKey(); break;
-					default: break;
-					}
-				}
-			}
-		});
-		
-		// 창 닫기
-		addWindowListener(new WindowAdapter() {
-			@Override
-			public void windowClosing(WindowEvent e) {
-				dispose();
-			}
-		});
-		
-		setBounds(800, 100, 780, 690);
-		setResizable(false);
-		setVisible(true);
-		requestFocus();
 	}
+
 //	========================================================================== 
 //	생성자 종료	
 //	========================================================================== 
 	
 	
 //	------------------------------------------------------------------------------
-//	play time process !! 서버로 코드 넘기는중 !!
-//	------------------------------------------------------------------------------
-//	private void setCountTime() {
-//		int timeCount = 0;
-//		isGameOn = true;
-//		while(isGameOn) {
-//			try {
-//				Thread.sleep(1000);
-//				timeCount++;
-//				String min = "0" + (timeCount/60);
-//				String sec = "";
-//				if(timeCount%60 < 10) {
-//					sec = "0" + (timeCount%60);
-//				} else {
-//					sec = timeCount%60 + "";
-//				}
-//				timeLabel.setText(min + ":" + sec);
-//				if(timeCount == setPlayTime)isGameOn = false;
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//	}
-
-//	------------------------------------------------------------------------------
 //	game play process
 //	------------------------------------------------------------------------------
-	private void playGame() {
+	public void playGame() {
 		
-		/**
-		 * 게임 시작
-		 * 
-		 * 게임 화면에 카운트 다운 5 4 3 2 1
-		 * 카운트 다운 후 블럭 스타트
+		/*
+		  게임 시작
+
+		  게임 화면에 카운트 다운 5 4 3 2 1
+		  카운트 다운 후 블럭 스타트
 		 */
 		
-		/**
-		 * 블럭 가져오기 
-		 * 
-		 * 1. 서버로 부터 블럭 배열 받아오기
-		 * 2. 받아온 블럭을 오래된 순서대로(queue 활용) 하나씩 꺼내서 next block 창에 배치
-		 * 3. 게임 화면에서 블럭 동작 마감하면 next block 창에서 하나 꺼냄
-		 * 4. 서버로 부터 몇개씩 가져오지? 한번에? 아니면 가져온 블럭이 일정 갯수 이하로 떨어지면 요청?
+		/*
+		  블럭 가져오기
+
+		  1. 서버로 부터 블럭 배열 받아오기
+		  2. 받아온 블럭을 오래된 순서대로(queue 활용) 하나씩 꺼내서 next block 창에 배치
+		  3. 게임 화면에서 블럭 동작 마감하면 next block 창에서 하나 꺼냄
+		  4. 서버로 부터 몇개씩 가져오지? 한번에? 아니면 가져온 블럭이 일정 갯수 이하로 떨어지면 요청?
 		 */
 		Block[] blocks = {new Block1(),new Block2(),new Block3(),new Block4(),new Block5(),new Block6(),new Block7()};
 		List<Block> blockList = new ArrayList<>();
@@ -447,34 +402,7 @@ public class MainGUI extends Frame{
 
 		});
 		moveBlock.start();
-		
-		/*
-		  줄 삭제
 
-		  삭제된 줄 x 100점 계산하여 score count
-		  삭제된 줄 상부에 있는 모든 블럭 삭제 줄 수 만큼 아래로 이동
-
-		 */
-		
-		/*
-		  종료 win or lose
-
-		  if 나의
-		  블럭이 멈췄을때 해당블럭의 일부분이 18번째 칸의 상부 라인에 걸치면 게임 종료
-		  &&
-		  END 버튼 클릭
-		  isGameOn = false
-		  isWin = false
-		  화면에 해골 표시
-
-		  if 서버로부터 isGameOn = false 싸인오면
-		  else
-		  isGameOn = false
-		  isWin = true
-		  화면에 WinWin! 표시
-
-		 */
-		
 	}
 
 	private void checkLineComplete() {
@@ -509,7 +437,6 @@ public class MainGUI extends Frame{
 		} else if (completeLine.size()==1){
 			for (int i = completeLine.get(0); i >= 2; i--){
 				for (int j = 0; j<10; j++){
-					System.out.println("i: "+i+", j: "+j);
 					playGroundLabel[i][j].setBackground(playGroundLabel[i - 1][j].getBackground());
 				}
 			}
