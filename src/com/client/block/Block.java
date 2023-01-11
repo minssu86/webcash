@@ -1,5 +1,7 @@
 package com.client.block;
 
+import com.client.Tetris;
+
 import java.awt.*;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -12,7 +14,6 @@ public abstract class Block implements Serializable {
 	boolean isGameOn = true;
     public Color color;
     Label[][] playGroundArr;
-    int speedLevel;
     boolean isStop;
     public int[] a = new int[2];
     public int[] b = new int[2];
@@ -23,7 +24,7 @@ public abstract class Block implements Serializable {
     // idx 1 = 가로
     // idx 0 = 세로
 
-    public abstract boolean setBlock(int speedLevel, Label[][] playGroundArr);
+    public abstract boolean setBlock(Label[][] playGroundArr);
     
     public void pressSpaceKey() {
 		resetColor();
@@ -269,7 +270,9 @@ public abstract class Block implements Serializable {
     // gameOver
     private void checkGameOver() {
     	if(a[0]<2 || b[0]<2 || c[0]<2 || d[0]<2) {
+			System.out.println("game 끝");
     		isGameOn=false;
+			Tetris.isGameOff=true;
     		for (int i = 3; i < 9; i++) {
 				for (int j = 2; j < 8; j++) {
 					playGroundArr[i][j].setBackground(Color.white);

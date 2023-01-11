@@ -5,11 +5,12 @@ import java.awt.Label;
 
 public class CountDown {
 
-	int countDownTemp = 100;
-	Label[][] playGroundArr;
+	Label[][] playGroundLabel;
+	MainGUI mainGUI;
 
-	public CountDown(Label[][] playGroundArr){
-		this.playGroundArr = playGroundArr;
+	public CountDown(MainGUI mainGUI){
+		this.playGroundLabel = mainGUI.playGroundLabel;
+		this.mainGUI = mainGUI;
 		getNum0();
 	}
 
@@ -20,85 +21,85 @@ public class CountDown {
 			case 3 : getNum3(); break;
 			case 2 : getNum2(); break;
 			case 1 : getNum1(); break;
-			case 0 : getNum0(); break;
+			case 0 : getNum0(); mainGUI.startButton.setLabel("running");break;
 		}
 	}
 	
 	private void getNum5() {
 		for (int i = 3; i < 10; i++) {
 			for (int j = 2; j < 8; j++) {
-				playGroundArr[i][j].setBackground(Color.white);
+				mainGUI.playGroundLabel[i][j].setBackground(Color.white);
 			}
 		}
 		for (int i = 4; i < 9; i+=2) {
 			for (int j = 3; j < 7; j++) {
-				playGroundArr[i][j].setBackground(Color.gray);
+				playGroundLabel[i][j].setBackground(Color.gray);
 			}
 		}
-		playGroundArr[5][3].setBackground(Color.gray);
-		playGroundArr[7][6].setBackground(Color.gray);
+		playGroundLabel[5][3].setBackground(Color.gray);
+		playGroundLabel[7][6].setBackground(Color.gray);
 	}
 	private void getNum4() {
 		for (int i = 3; i < 10; i++) {
 			for (int j = 2; j < 8; j++) {
-				playGroundArr[i][j].setBackground(Color.white);
+				playGroundLabel[i][j].setBackground(Color.white);
 			}
 		}
 		for (int i = 4; i < 9; i++) {
-			playGroundArr[i][6].setBackground(Color.gray);
+			playGroundLabel[i][6].setBackground(Color.gray);
 		}
-		playGroundArr[4][3].setBackground(Color.gray);
-		playGroundArr[5][3].setBackground(Color.gray);
-		playGroundArr[6][3].setBackground(Color.gray);
-		playGroundArr[6][4].setBackground(Color.gray);
-		playGroundArr[6][5].setBackground(Color.gray);
+		playGroundLabel[4][3].setBackground(Color.gray);
+		playGroundLabel[5][3].setBackground(Color.gray);
+		playGroundLabel[6][3].setBackground(Color.gray);
+		playGroundLabel[6][4].setBackground(Color.gray);
+		playGroundLabel[6][5].setBackground(Color.gray);
 	}
 	private void getNum3() {
 		for (int i = 3; i < 10; i++) {
 			for (int j = 2; j < 8; j++) {
-				playGroundArr[i][j].setBackground(Color.white);
+				playGroundLabel[i][j].setBackground(Color.white);
 			}
 		}
 		for (int i = 4; i < 9; i+=2) {
 			for (int j = 3; j < 7; j++) {
-				playGroundArr[i][j].setBackground(Color.gray);
+				playGroundLabel[i][j].setBackground(Color.gray);
 			}
 		}
-		playGroundArr[5][6].setBackground(Color.gray);
-		playGroundArr[7][6].setBackground(Color.gray);
+		playGroundLabel[5][6].setBackground(Color.gray);
+		playGroundLabel[7][6].setBackground(Color.gray);
 	}
 	private void getNum2() {
 		for (int i = 3; i < 10; i++) {
 			for (int j = 2; j < 8; j++) {
-				playGroundArr[i][j].setBackground(Color.white);
+				playGroundLabel[i][j].setBackground(Color.white);
 			}
 		}
 		for (int i = 4; i < 9; i+=2) {
 			for (int j = 3; j < 7; j++) {
-				playGroundArr[i][j].setBackground(Color.gray);
+				playGroundLabel[i][j].setBackground(Color.gray);
 			}
 		}
-		playGroundArr[5][6].setBackground(Color.gray);
-		playGroundArr[7][3].setBackground(Color.gray);
+		playGroundLabel[5][6].setBackground(Color.gray);
+		playGroundLabel[7][3].setBackground(Color.gray);
 	}
 	private void getNum1() {
 		for (int i = 3; i < 10; i++) {
 			for (int j = 2; j < 8; j++) {
-				playGroundArr[i][j].setBackground(Color.white);
+				playGroundLabel[i][j].setBackground(Color.white);
 			}
 		}
 		for (int i = 4; i < 9; i++) {
-			playGroundArr[i][5].setBackground(Color.gray);
+			playGroundLabel[i][5].setBackground(Color.gray);
 		}
-		playGroundArr[4][4].setBackground(Color.gray);
-		playGroundArr[8][3].setBackground(Color.gray);
-		playGroundArr[8][4].setBackground(Color.gray);
-		playGroundArr[8][6].setBackground(Color.gray);
+		playGroundLabel[4][4].setBackground(Color.gray);
+		playGroundLabel[8][3].setBackground(Color.gray);
+		playGroundLabel[8][4].setBackground(Color.gray);
+		playGroundLabel[8][6].setBackground(Color.gray);
 	}
 	private void getNum0() {
 		for (int i = 0; i < 20; i++) {
 			for (int j = 0; j < 10; j++) {
-				playGroundArr[i][j].setBackground(new Color(12,6,6));
+				playGroundLabel[i][j].setBackground(new Color(12,6,6));
 			}
 		}
 	}

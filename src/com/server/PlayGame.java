@@ -13,7 +13,7 @@ public class PlayGame {
     GameOver gameOver;
     PlayGame(){
         isGameOn = false;
-        readyCount = 0;
+        readyCount = 1;
         gameOver = new GameOver();
         isCountDownOn = false;
     }
@@ -95,16 +95,18 @@ public class PlayGame {
                                     oos.writeObject(temp);
                                     oos.flush();
                                     System.out.println("1");
+
+                                    Object object = ois.readObject();
+                                    if(object instanceof GameOver){
+                                        System.out.println("한쪽 게임 종료");
+                                        oos.writeObject(playGame.gameOver);
+                                        oos.flush();
+                                        System.out.println("반대쪽도 게임 종료 시키기");
+                                        playGame.gameOver.isGameOver=true;
+                                    }
                                 }
 
-//                                Object object = ois.readObject();
-//                                if(object instanceof GameOver){
-//                                    System.out.println("한쪽 게임 종료");
-//                                    oos.writeObject(playGame.gameOver);
-//                                    oos.flush();
-//                                    System.out.println("반대쪽도 게임 종료 시키기");
-//                                    playGame.gameOver.isGameOver=true;
-//                                }
+
 
                                 Thread.sleep(500);
                                 if(playGame.gameOver.isGameOver)break;

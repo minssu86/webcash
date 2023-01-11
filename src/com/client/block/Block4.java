@@ -1,5 +1,7 @@
 package com.client.block;
 
+import com.client.Tetris;
+
 import java.awt.*;
 
 //box type
@@ -11,10 +13,9 @@ public class Block4 extends Block {
     }
 
     @Override
-    public boolean setBlock(int speedLevel, Label[][] playGroundArr) {
+    public boolean setBlock(Label[][] playGroundArr) {
 
         this.playGroundArr = playGroundArr;
-        this.speedLevel = speedLevel;
         a[0] = 0; a[1] = 4;
         b[0] = 0; b[1] = 5;
         c[0] = 1; c[1] = 4;
@@ -23,7 +24,7 @@ public class Block4 extends Block {
         isStop = false;
         while (!isStop) {
             try {
-                Thread.sleep(1000 - this.speedLevel * 100L);
+                Thread.sleep(1000 - Tetris.speedLevel * 100L);
                 pressDownKey();
             } catch (InterruptedException e) {
                 e.printStackTrace();
