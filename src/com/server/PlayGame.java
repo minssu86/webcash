@@ -4,15 +4,18 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class PlayGame {
     int readyCount;
     boolean isGameOn;
+    boolean isCountDownOn;
     GameOver gameOver;
     PlayGame(){
         isGameOn = false;
-        readyCount = 1;
+        readyCount = 0;
         gameOver = new GameOver();
+        isCountDownOn = false;
     }
     public static void main(String[] args) {
         PlayGame playGame = new PlayGame();
@@ -44,44 +47,70 @@ public class PlayGame {
                             oos = new ObjectOutputStream(os);
                             while(true){
                                 System.out.println("여긴 왔음");
-                                Object object = null;
                                 // 플레이어 각자 접속 하여 게임준비
                                 if(!isReady){
-                                    object=ois.readObject();
+                                    System.out.println("게임 준비 전");
+                                    Object object=ois.readObject();
                                     if(object instanceof Boolean){
                                         if(Boolean.TRUE.equals(object)){
+                                            System.out.println("게임 준비 됨");
                                             isReady = true;
                                             playGame.readyCount++;
                                             // 준비된 플레이어 카운트
                                             if(playGame.readyCount==2){
-                                                playGame.isGameOn = true;
-                                                playTimeTread.start();
-//                                                Thread timeThread = new Thread(new Runnable() {
-//                                                    @Override
-//                                                    public void run() {
-//                                                        try {
-//                                                            playTime.timeStart();
-//                                                        } catch (InterruptedException e) {
-//                                                            throw new RuntimeException(e);
-//                                                        }
-//                                                    }
-//                                                });
-//                                                timeThread.start();
+                                                System.out.println("2명의 플레이어 게임 준비 됨");
+                                                playGame.isCountDownOn = true;
                                             }
                                             blocks.makeBlock();
-                                            System.out.println(blocks.getBlockList());
                                             oos.writeObject(blocks.getBlockList());
+                                            oos.flush();
                                         }
                                     }
                                 }
+
+                                // 각 유저에게 카운트다운 보내기
+                                if (playGame.isCountDownOn){
+                                    System.out.println("카운트 다운 보내기");
+                                    int countNum = 5;
+                                    while (countNum>-1){
+                                        oos.writeObject(new CountDownStart(countNum--));
+                                        Thread.sleep(1000);
+                                        oos.flush();
+                                    }
+                                    // 카운트 다운이 끝나면 게임 실행
+                                    if(playGame.isCountDownOn){
+                                        System.out.println("게임 시작 쓰레드");
+                                        playTimeTread.start();
+                                    }
+                                    playGame.isCountDownOn =false;
+                                    playGame.isGameOn = true;
+                                    System.out.println("카운트 다운 보내기 완료");
+                                }
+
+                                // 게임 실행중일때 사용하는 조건문
                                 if(playGame.isGameOn) {
+                                    System.out.println("게임 실행 중");
                                     String temp = playTime.responseTime;
+                                    System.out.println(temp);
                                     oos.writeObject(temp);
                                     oos.flush();
+                                    System.out.println("1");
                                 }
-                                Thread.sleep(300);
+
+//                                Object object = ois.readObject();
+//                                if(object instanceof GameOver){
+//                                    System.out.println("한쪽 게임 종료");
+//                                    oos.writeObject(playGame.gameOver);
+//                                    oos.flush();
+//                                    System.out.println("반대쪽도 게임 종료 시키기");
+//                                    playGame.gameOver.isGameOver=true;
+//                                }
+
+                                Thread.sleep(500);
                                 if(playGame.gameOver.isGameOver)break;
                             }
+                        } catch (SocketException e){
+                            System.out.println("소켓 예외 처리 필요");
                         } catch (InterruptedException | IOException | ClassNotFoundException e){
                             e.printStackTrace();
                             Thread.currentThread().interrupt();

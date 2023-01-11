@@ -37,15 +37,15 @@ public class MainGUI extends Frame{
 	Label[][] topMenuLabel;
 	
 	int speedLevel = 0;
-	boolean isGameOn=false;
-	boolean isWin = false;
 	Label timeLabel;
 	Label scoreLabel;
 	Label[][] playGroundLabel = new Label[20][10];
 	Block block;
 
-	Boolean isReady;
+	boolean isReady;
 	boolean isBeforeBlockStart;
+	boolean isGameOn=false;
+	boolean isWin = false;
 
 	// 버튼
 	Button startButton;

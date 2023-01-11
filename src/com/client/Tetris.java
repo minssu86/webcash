@@ -1,17 +1,41 @@
 package com.client;
 
-import com.server.GameOver;
-
+import java.awt.Color;
 import java.awt.Frame;
-import java.awt.event.*;
-import java.io.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import com.client.block.Block;
+import com.client.block.Block1;
+import com.client.block.Block2;
+import com.client.block.Block3;
+import com.client.block.Block4;
+import com.client.block.Block5;
+import com.client.block.Block6;
+import com.client.block.Block7;
+import com.server.CountDownStart;
+import com.server.GameOver;
 
 public class Tetris extends Frame{
 
+	public static boolean isGameOff = false;
+
 	public static void main(String[] args) {
-		
+		Tetris tetris = new Tetris();
 		MainGUI mainGUI = new MainGUI();
 
 		// 화면 셋팅
@@ -34,7 +58,7 @@ public class Tetris extends Frame{
 				mainGUI.speedLevel = 0;
 				mainGUI.isReady = false;
 				mainGUI.isBeforeBlockStart = true;
-				new CountDown(mainGUI.playGroundLabel);
+				CountDown countDown = new CountDown(mainGUI.playGroundLabel);
 
 				// 게임 스타트 및 타임 셋팅
 				Thread gameStartThread = new Thread(new Runnable() {
@@ -43,7 +67,8 @@ public class Tetris extends Frame{
 						System.out.println("gameStartThread");
 						// socket 연결
 //						byte[] arr = {(byte)192,(byte)168,(byte)240,127};
-						byte[] arr = {(byte)192,(byte)168,(byte)35,99};
+						byte[] arr = {(byte)192,(byte)168,(byte)240,64};
+//						byte[] arr = {(byte)192,(byte)168,(byte)35,99};
 						InetAddress addr = null;
 						int port = 8080;
 						InputStream is = null;
@@ -62,31 +87,64 @@ public class Tetris extends Frame{
 							ois = new ObjectInputStream(is);
 
 							do {
+								// 서버에 게임 준비 됨을 알림
 								if (!mainGUI.isReady) {
 									oos.writeObject(true);
 									mainGUI.isReady = true;
 									oos.flush();
 								}
+
+								/*
+								 * 서버로부터 신호 받기 (객체로 구분)
+								 * CountDownStart : 게임시작전 카운트 다운
+								 * String : 현재까지 진행된 게임 시간
+								 * GameOver : 상대편 게임이 종료됨
+								 */
 								object = ois.readObject();
-								if (mainGUI.isReady && object instanceof String) {
-									System.out.println("왔나?3");
-									String temp = object.toString();
-									System.out.println(temp);
-									mainGUI.timeLabel.setText(temp);
-									if (!mainGUI.isGameOn) mainGUI.isGameOn = true;
+
+
+								// 게임 시작전 카운트 다운
+								if(mainGUI.isReady && object instanceof CountDownStart){
+									System.out.println("게임 시작전 카운트 다운");
+									countDown.setCount(((CountDownStart) object).timeCount);
 								}
-//						if(isGameOn && isBeforeBlockStart){
-//							isBeforeBlockStart = false;
-//							requestFocusInWindow();
-//							Thread palyGameThread = new Thread(new Runnable() {
-//								@Override
-//								public void run() {
-//									playGame();
-//								}
-//							});
-//							palyGameThread.start();
-//						}
-							} while (!(object instanceof GameOver));
+
+								// 현재 까지 진행된 게임 시간
+								if (mainGUI.isReady && object instanceof String) {
+									System.out.println("현재 까지 진행된 게임 시간 ");
+									mainGUI.timeLabel.setText(object.toString());
+									if (!mainGUI.isGameOn) {
+										mainGUI.isGameOn = true;
+									}
+//									else {
+//										oos.writeObject("게임중");
+//										oos.flush();
+//									}
+								}
+
+								// 게임용 쓰레드 시작
+								if(mainGUI.isGameOn && mainGUI.isBeforeBlockStart){
+									System.out.println("게임용 쓰레드 시작");
+									mainGUI.isBeforeBlockStart = false;
+									mainGUI.requestFocusInWindow();
+									Thread palyGameThread = new Thread(new Runnable() {
+										@Override
+										public void run() {
+											tetris.playGame(mainGUI);
+										}
+									});
+									palyGameThread.start();
+								}
+
+								// 먼저 게임 끝났음을 서버에 알림
+								if(Tetris.isGameOff){
+									System.out.println("게임끝");
+									oos.writeObject(new GameOver());
+									oos.flush();
+								}
+
+
+							} while (!(object instanceof GameOver) || !Tetris.isGameOff);
 
 						} catch (IOException | ClassNotFoundException ex) {
 							ex.printStackTrace();
@@ -107,8 +165,8 @@ public class Tetris extends Frame{
 				gameStartThread.start();
 
 				// 게임 시작 -------------------------------------------
-				mainGUI.requestFocusInWindow();
-				mainGUI.playGame();
+//				mainGUI.requestFocusInWindow();
+//				tetris.playGame(mainGUI);
 
 			}
 		});
@@ -148,5 +206,148 @@ public class Tetris extends Frame{
 		});
 		System.out.println("끝");
 	}
-	
+
+
+
+	//	------------------------------------------------------------------------------
+//	game play process
+//	------------------------------------------------------------------------------
+	public void playGame(MainGUI mainGUI) {
+
+		/*
+		  게임 시작
+
+		  게임 화면에 카운트 다운 5 4 3 2 1
+		  카운트 다운 후 블럭 스타트
+		 */
+
+		/*
+		  블럭 가져오기
+
+		  1. 서버로 부터 블럭 배열 받아오기
+		  2. 받아온 블럭을 오래된 순서대로(queue 활용) 하나씩 꺼내서 next block 창에 배치
+		  3. 게임 화면에서 블럭 동작 마감하면 next block 창에서 하나 꺼냄
+		  4. 서버로 부터 몇개씩 가져오지? 한번에? 아니면 가져온 블럭이 일정 갯수 이하로 떨어지면 요청?
+		 */
+		Block[] blocks = {new Block1(),new Block2(),new Block3(),new Block4(),new Block5(),new Block6(),new Block7()};
+		List<Block> blockList = new ArrayList<>();
+		for (int i = 0; i < 100; i++) {
+			blockList.add(blocks[i%7]);
+		}
+		mainGUI.speedLevel = 5;
+		Thread moveBlock = new Thread(new Runnable() {
+			@Override
+			public void run() {
+//				while(isGameOn) {
+//					block.setBlock(speedLevel, playGroundArr);
+//				}
+				for (int i = 0; i < blockList.size(); i++) {
+
+					// next block 화면 초기화
+					for (int k = 0; k < 10; k++) {
+						for (int j = 0; j < 4; j++) {
+							mainGUI.topMenuLabel[k][j].setBackground(Color.white);
+						}
+					}
+
+					// next block 화면 설정
+					blockList.get(i+1).setNextBlock(1,mainGUI.topMenuLabel);
+					blockList.get(i+2).setNextBlock(4,mainGUI.topMenuLabel);
+					blockList.get(i+3).setNextBlock(7,mainGUI.topMenuLabel);
+
+					// 화면에 블럭 출력
+					mainGUI.block = blockList.get(i);
+					mainGUI.isGameOn = mainGUI.block.setBlock(mainGUI.speedLevel, mainGUI.playGroundLabel);
+					// score process
+					checkLineComplete(mainGUI);
+					if(!mainGUI.isGameOn)break;
+				}
+			}
+
+		});
+		moveBlock.start();
+
+	}
+
+	private void checkLineComplete(MainGUI mainGUI) {
+		// scan
+		boolean isComplete = true;
+		List<Integer> completeLine = new ArrayList<>();
+		for (int i = 19; i >=2; i--){
+			for (int j = 0; j<10; j++){
+				Color checkColor = mainGUI.playGroundLabel[i][j].getBackground();
+				if(Objects.equals(checkColor, new Color(12, 6, 6))) {
+					isComplete = false;
+					break;
+				}
+			}
+			if(isComplete){
+				mainGUI.scoreLabel.setText(Integer.parseInt(mainGUI.scoreLabel.getText())+100+"");
+				completeLine.add(i);
+			}
+			isComplete = true;
+		}
+
+		if(completeLine.size()==4){
+			for (int i = completeLine.get(0); i >= 2; i--){
+				for (int j = 0; j<10; j++){
+					if(i<=5){
+						mainGUI.playGroundLabel[i][j].setBackground(new Color(12, 6, 6));
+					} else {
+						mainGUI.playGroundLabel[i][j].setBackground(mainGUI.playGroundLabel[i-4][j].getBackground());
+					}
+				}
+			}
+		} else if (completeLine.size()==1){
+			for (int i = completeLine.get(0); i >= 2; i--){
+				for (int j = 0; j<10; j++){
+					mainGUI.playGroundLabel[i][j].setBackground(mainGUI.playGroundLabel[i - 1][j].getBackground());
+				}
+			}
+		} else if (completeLine.size() == 2) {
+			for (int i = completeLine.get(0); i > completeLine.get(0)-2; i--){
+				for (int j = 0; j<10; j++){
+					if(!completeLine.contains(i-1)){
+						mainGUI.playGroundLabel[i][j].setBackground(mainGUI.playGroundLabel[i-1][j].getBackground());
+					}else if(!completeLine.contains(i-2)){
+						mainGUI.playGroundLabel[i][j].setBackground(mainGUI.playGroundLabel[i-2][j].getBackground());
+					}
+				}
+			}
+			for (int i = completeLine.get(0)-2; i >= 2; i--){
+				for (int j = 0; j<10; j++){
+					mainGUI.playGroundLabel[i][j].setBackground(mainGUI.playGroundLabel[i-2][j].getBackground());
+				}
+			}
+		} else if (completeLine.size() == 3){
+			for (int i = completeLine.get(0); i > completeLine.get(0)-3; i--) {
+				for (int j = 0; j < 10; j++) {
+					if (i <= 4) {
+						mainGUI.playGroundLabel[i][j].setBackground(new Color(12, 6, 6));
+					} else if (!completeLine.contains(i + 1)) {
+						mainGUI.playGroundLabel[i][j].setBackground(mainGUI.playGroundLabel[i - 1][j].getBackground());
+					} else if (!completeLine.contains(i - 2)) {
+						mainGUI.playGroundLabel[i][j].setBackground(mainGUI.playGroundLabel[i - 2][j].getBackground());
+					} else if (!completeLine.contains(i - 3)) {
+						mainGUI.playGroundLabel[i][j].setBackground(mainGUI.playGroundLabel[i - 3][j].getBackground());
+					}
+				}
+			}
+			for (int i = completeLine.get(0)-3; i >= 2; i--){
+				for (int j = 0; j<10; j++){
+					if(i<=4){
+						mainGUI.playGroundLabel[i][j].setBackground(new Color(12, 6, 6));
+					} else {
+						mainGUI.playGroundLabel[i][j].setBackground(mainGUI.playGroundLabel[i-3][j].getBackground());
+					}
+				}
+			}
+
+		}
+
+
+
+	}
+
+
 }

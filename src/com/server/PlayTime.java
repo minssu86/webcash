@@ -5,6 +5,7 @@ public class PlayTime implements Runnable {
     String responseTime;
     int endTime;
     public PlayTime(){
+        responseTime = "00:00";
         endTime = 600;
     }
 

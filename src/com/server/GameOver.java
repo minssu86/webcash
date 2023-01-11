@@ -1,5 +1,7 @@
 package com.server;
 
-public class GameOver {
+import java.io.Serializable;
+
+public class GameOver implements Serializable {
     public boolean isGameOver;
 }
