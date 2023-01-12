@@ -246,7 +246,6 @@ public abstract class Block implements Serializable {
 	// gameOver
 	private void checkGameOver() {
 		if(a[0]<2 || b[0]<2 || c[0]<2 || d[0]<2) {
-			System.out.println("game 끝");
 			Tetris.isGameOn=false;
 			Tetris.isWin = false;
 			Tetris.isGameOff=true;
