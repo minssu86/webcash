@@ -13,7 +13,7 @@ public class Block2 extends Block {
     }
 
     @Override
-    public boolean setBlock(Label[][] playGroundArr) {
+    public void setBlock(Label[][] playGroundArr) {
         this.playGroundArr = playGroundArr;
         a[0] = 1; a[1] = 3;
         b[0] = 1; b[1] = 4;
@@ -33,7 +33,6 @@ public class Block2 extends Block {
                 e.printStackTrace();
             }
         }
-        return isGameOn;
     }
 
 

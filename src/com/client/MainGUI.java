@@ -1,10 +1,23 @@
 package com.client;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Button;
+import java.awt.Color;
+import java.awt.Dialog;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.TextField;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 
 import com.client.block.Block;
 
@@ -13,15 +26,15 @@ public class MainGUI extends Frame{
 	Panel chatPanel;
 	Panel backGroundPanel;
 	Panel menuPanel;
-	
+
 	// Menu BackGround
-	Panel topMenuPanel;		
+	Panel topMenuPanel;
 	Panel bottomMenuPanel;
 	// Top Menu
 	// Next blocks
 	Panel topMenuGridPanel;
 	Label[][] topMenuLabel;
-	
+
 	Label timeLabel;
 	Label scoreLabel;
 	Label[][] playGroundLabel = new Label[20][10];
@@ -31,7 +44,6 @@ public class MainGUI extends Frame{
 	Button startButton;
 	Button endButton;
 
-	
 	MainGUI(){
 //		==========================================================================
 //		전체 기본 틀
@@ -41,18 +53,18 @@ public class MainGUI extends Frame{
 		chatPanel = new Panel();
 		chatPanel.setLayout(null);
 		chatPanel.setBackground(new Color(124,100,100));
-		
+
 		// Basic BackGround : play
 		backGroundPanel = new Panel();
 		backGroundPanel.setLayout(null);
 		backGroundPanel.setBackground(new Color(85,83,83));
-		
+
 		// Basic BackGround : menu
 		menuPanel = new Panel();
 		menuPanel.setLayout(null);
 		menuPanel.setBackground(new Color(124,100,100));
-		
-		
+
+
 		// Basic BackGround 배치
 		setLayout(null);
 		chatPanel.setBounds(0,30,240,690);
@@ -61,46 +73,47 @@ public class MainGUI extends Frame{
 		add(chatPanel);
 		add(backGroundPanel);
 		add(menuPanel);
-		
-//		==========================================================================	
+
+//		==========================================================================
 //		게임 플레이 화면 셋팅
-//		==========================================================================	
+//		==========================================================================
 
 		// Play BackGround
 		Panel playPanel = new Panel(new GridLayout(20, 10));
 		playPanel.setBounds(30,30,300,600);
 		playPanel.setBackground(new Color(12,6,6));
 		backGroundPanel.add(playPanel);
-		
+
 		// Play Ground
 		for (int i = 0; i < 20; i++) {
 			for (int j = 0; j < 10; j++) {
-					playGroundLabel[i][j] = new Label();
-					playGroundLabel[i][j].setBackground(new Color(12,6,6));
-					playPanel.add(playGroundLabel[i][j]);
+				playGroundLabel[i][j] = new Label();
+				playGroundLabel[i][j].setBackground(new Color(12,6,6));
+				playPanel.add(playGroundLabel[i][j]);
 			}
 		}
-		
 
-//		==========================================================================	
+
+
+//		==========================================================================
 //		게임 메뉴 화면 셋팅
-//		==========================================================================	
-		
+//		==========================================================================
+
 		// Menu BackGround
 		topMenuPanel = new Panel();
 		topMenuPanel.setLayout(null);
 		topMenuPanel.setBounds(0,0,180,330);
 		menuPanel.add(topMenuPanel);
-		
+
 		bottomMenuPanel = new Panel();
 		bottomMenuPanel.setLayout(null);
 		bottomMenuPanel.setBounds(0,330,180,330);
 		menuPanel.add(bottomMenuPanel);
-		
+
 //		------------------------------------------------------------------------------
 //		게임 메뉴 화면 : 상단
 //		------------------------------------------------------------------------------
-		
+
 		// Top Menu
 		// Next blocks
 		topMenuGridPanel = new Panel(new GridLayout(10,4));
@@ -114,7 +127,7 @@ public class MainGUI extends Frame{
 				topMenuGridPanel.add(topMenuLabel[i][j], BorderLayout.CENTER);
 			}
 		}
-		
+
 //		------------------------------------------------------------------------------
 //		게임 메뉴 화면 : 하단
 //		------------------------------------------------------------------------------
@@ -130,7 +143,7 @@ public class MainGUI extends Frame{
 		bottomMenuPanel.add(userInfoPanel);
 
 		Font fontSizeBig = new Font("",Font.PLAIN,20);
-		
+
 		// Time & Score view -------------------------------------------
 		Label timeTitleLabel = new Label("Time");
 		timeTitleLabel.setForeground(Color.white);
@@ -152,7 +165,7 @@ public class MainGUI extends Frame{
 		timeScorePanel.add(timeLabel);
 		timeScorePanel.add(scoreTitleLabel);
 		timeScorePanel.add(scoreLabel);
-		
+
 		// Button -------------------------------------------
 		Label buttonPaddingTop = new Label();
 		startButton = new Button("Ready");

@@ -2,11 +2,12 @@ package com.server;
 
 import com.client.block.*;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
-public class Blocks {
+public class Blocks implements Serializable {
 
     private final Block[] blockArr;
     private List<Block> blockList;
