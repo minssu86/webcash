@@ -9,11 +9,13 @@ import java.net.SocketException;
 public class PlayGame {
     int readyCount;
     boolean isGameOn;
+    int gameOverCount;
     boolean isCountDownOn;
     GameOver gameOver;
     PlayGame(){
         isGameOn = false;
-        readyCount = 1;
+        readyCount = 0;
+        gameOverCount = 0;
         gameOver = new GameOver();
         isCountDownOn = false;
     }
@@ -28,8 +30,9 @@ public class PlayGame {
         try{
             serve = new ServerSocket(8080);
             while(true){
-                System.out.println("계속 도나?");
+                System.out.println("서버 시작");
                 final Socket socket = serve.accept();
+                System.out.println("유저 접속");
                 Thread gameStartThread = new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -94,43 +97,47 @@ public class PlayGame {
                                     System.out.println(temp);
                                     oos.writeObject(temp);
                                     oos.flush();
-                                    System.out.println("1");
-
                                     Object object = ois.readObject();
                                     if(object instanceof GameOver){
                                         System.out.println("한쪽 게임 종료");
-                                        oos.writeObject(playGame.gameOver);
-                                        oos.flush();
-                                        System.out.println("반대쪽도 게임 종료 시키기");
                                         playGame.gameOver.isGameOver=true;
+                                    }
+                                    if(playGame.gameOver.isGameOver && playGame.gameOverCount++ <2){
+                                        System.out.println("반대쪽도 게임 종료 시키기" + Thread.currentThread());
+                                        GameOver setGameOver = new GameOver();
+                                        oos.writeObject(setGameOver);
+                                        oos.flush();
+                                        System.out.println("객체전달 완료");
+                                        if(playGame.gameOverCount == 2){
+                                            playGame.isGameOn=false;
+                                        }
                                     }
                                 }
 
-
-
-                                Thread.sleep(500);
-                                if(playGame.gameOver.isGameOver)break;
+                                Thread.sleep(100);
+                                if(playGame.gameOverCount == 2)break;
                             }
                         } catch (SocketException e){
                             System.out.println("소켓 예외 처리 필요");
+                            e.printStackTrace();
                         } catch (InterruptedException | IOException | ClassNotFoundException e){
                             e.printStackTrace();
                             Thread.currentThread().interrupt();
                         } finally {
                             try {
-                                if(os!=null)os.close();
-                                if(is!=null)is.close();
-                                if(socket!=null)socket.close();
+                                if(!playGame.isGameOn){
+                                    System.out.println("close");
+                                    if(os!=null)os.close();
+                                    if(is!=null)is.close();
+                                    if(socket!=null)socket.close();
+                                }
                             } catch (Exception e){
                                 e.printStackTrace();
                             }
                         }
-
                     }
                 });
                 gameStartThread.start();
-
-                System.out.println("끝난다");
                 if(playGame.gameOver.isGameOver)break;
             }
         } catch (IOException e){
@@ -142,12 +149,6 @@ public class PlayGame {
                 e.printStackTrace();
             }
         }
-
-
-
-
-
-
 
     }
 

@@ -23,6 +23,10 @@ public class Block1 extends Block {
         changeColor();
         isStop = false;
         while (!isStop) {
+            if(Tetris.isGameOff) {
+                resetColor();
+                break;
+            }
             try {
                 Thread.sleep(1000 - Tetris.speedLevel * 100L);
                 pressDownKey();

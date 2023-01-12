@@ -15,6 +15,7 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +36,7 @@ public class Tetris extends Frame{
 	public static void main(String[] args) {
 		Tetris tetris = new Tetris();
 		MainGUI mainGUI = new MainGUI();
-		mainGUI.requestFocus();
+//		mainGUI.requestFocus();
 		mainGUI.addWindowListener(new WindowAdapter() {
 			@Override
 			public void windowClosing(WindowEvent e) {
@@ -63,8 +64,8 @@ public class Tetris extends Frame{
 						System.out.println("gameStartThread");
 						// socket 연결
 //						byte[] arr = {(byte)192,(byte)168,(byte)240,127};
-//						byte[] arr = {(byte)192,(byte)168,(byte)240,64};
-						byte[] arr = {(byte)192,(byte)168,(byte)35,83};
+						byte[] arr = {(byte)192,(byte)168,(byte)240,67};
+//						byte[] arr = {(byte)192,(byte)168,(byte)35,83};
 						InetAddress addr = null;
 						int port = 8080;
 						InputStream is = null;
@@ -97,7 +98,16 @@ public class Tetris extends Frame{
 								 * GameOver : 상대편 게임이 종료됨
 								 */
 								object = ois.readObject();
-
+								System.out.println(object.getClass());
+								System.out.println(object.toString());
+								// 상대편이 먼저 게임 끝났을때 (승리 호출)
+								if(Tetris.isGameOn && object instanceof GameOver){
+									System.out.println("게임 승리 프로세스");
+									Tetris.isWin = true;
+									Tetris.isGameOff=true;
+									Tetris.isGameOn=false;
+									break;
+								}
 
 								// 게임 시작전 카운트 다운
 								if(Tetris.isReady && object instanceof CountDownStart){
@@ -106,11 +116,10 @@ public class Tetris extends Frame{
 								}
 
 								// 현재 까지 진행된 게임 시간
-								if (Tetris.isReady && object instanceof String) {
-									System.out.println("현재 까지 진행된 게임 시간 ");
+								if (!Tetris.isGameOff && object instanceof String) {
 									mainGUI.timeLabel.setText(object.toString());
 									if (!Tetris.isGameOn) {
-										System.out.println("설마?");
+										System.out.println("게임 on");
 										Tetris.isGameOn = true;
 									}
 									oos.writeObject("게임중");
@@ -139,8 +148,10 @@ public class Tetris extends Frame{
 								}
 
 
-							} while (!(object instanceof GameOver) || !Tetris.isGameOff);
+							} while (true);
 
+						} catch (SocketException e) {
+							Tetris.isGameOn = false;
 						} catch (IOException | ClassNotFoundException ex) {
 							ex.printStackTrace();
 						} finally {
@@ -149,7 +160,7 @@ public class Tetris extends Frame{
 								if(ois!=null)ois.close();
 								if(os!=null)os.close();
 								if(is!=null)is.close();
-								if(socket!=null)socket.close();
+//								if(socket!=null)socket.close();
 							} catch (IOException ex) {
 								ex.printStackTrace();
 							}
@@ -230,37 +241,40 @@ public class Tetris extends Frame{
 			blockList.add(blocks[i%7]);
 		}
 		Tetris.speedLevel = 5;
-		Thread moveBlock = new Thread(new Runnable() {
-			@Override
-			public void run() {
+//		Thread moveBlock = new Thread(new Runnable() {
+//			@Override
+//			public void run() {
 //				while(isGameOn) {
 //					block.setBlock(speedLevel, playGroundArr);
 //				}
-				for (int i = 0; i < blockList.size(); i++) {
+		for (int i = 0; i < blockList.size(); i++) {
 
-					// next block 화면 초기화
-					for (int k = 0; k < 10; k++) {
-						for (int j = 0; j < 4; j++) {
-							mainGUI.topMenuLabel[k][j].setBackground(Color.white);
-						}
-					}
-
-					// next block 화면 설정
-					blockList.get(i+1).setNextBlock(1,mainGUI.topMenuLabel);
-					blockList.get(i+2).setNextBlock(4,mainGUI.topMenuLabel);
-					blockList.get(i+3).setNextBlock(7,mainGUI.topMenuLabel);
-
-					// 화면에 블럭 출력
-					mainGUI.block = blockList.get(i);
-					Tetris.isGameOn = mainGUI.block.setBlock(mainGUI.playGroundLabel);
-					// score process
-					checkLineComplete(mainGUI);
-					if(!Tetris.isGameOn)break;
+			// next block 화면 초기화
+			for (int k = 0; k < 10; k++) {
+				for (int j = 0; j < 4; j++) {
+					mainGUI.topMenuLabel[k][j].setBackground(Color.white);
 				}
 			}
 
-		});
-		moveBlock.start();
+			// next block 화면 설정
+			blockList.get(i+1).setNextBlock(1,mainGUI.topMenuLabel);
+			blockList.get(i+2).setNextBlock(4,mainGUI.topMenuLabel);
+			blockList.get(i+3).setNextBlock(7,mainGUI.topMenuLabel);
+
+			// 화면에 블럭 출력
+			mainGUI.block = blockList.get(i);
+			Tetris.isGameOn = mainGUI.block.setBlock(mainGUI.playGroundLabel);
+			// score process
+			checkLineComplete(mainGUI);
+			System.out.println("블럭 생성중");
+			if(!Tetris.isGameOn){
+				System.out.println("게임 쓰레드 종료");
+				break;
+			}
+		}
+//			}
+//		});
+//		moveBlock.start();
 
 	}
 

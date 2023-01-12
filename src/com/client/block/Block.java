@@ -38,36 +38,24 @@ public abstract class Block implements Serializable {
 
 
 	public void pressRightKey(){
-    	if(!checkIsLastRightSide()) {
-    		if(!checkIsBlockRightSide()) {
-    			resetColor();
-    			++a[1];
-    			++b[1];
-    			++c[1];
-    			++d[1];
-    			changeColor();
-    		} else {
-    			System.out.println("오른쪽에 블럭 있음");
-    		}
-    	} else {
-    		System.out.println("오른쪽 끝");
+    	if(!checkIsLastRightSide() && !checkIsBlockRightSide()) {
+			resetColor();
+			++a[1];
+			++b[1];
+			++c[1];
+			++d[1];
+			changeColor();
     	}
     }
 
     public void pressLeftKey(){
-    	if(!checkIsLastLeftSide()) {
-    		if(!checkIsBlockLeftSide()) {
-    			resetColor();
-    			--a[1];
-    			--b[1];
-    			--c[1];
-    			--d[1];
-    			changeColor();
-    		} else {
-    			System.out.println("왼쪽에 블럭 있음");
-    		}
-    	} else {
-    		System.out.println("왼쪽 끝");
+    	if(!checkIsLastLeftSide() && !checkIsBlockLeftSide()) {
+			resetColor();
+			--a[1];
+			--b[1];
+			--c[1];
+			--d[1];
+			changeColor();
     	}
     }
 
@@ -83,12 +71,10 @@ public abstract class Block implements Serializable {
     			++d[0];
     			changeColor();
     		} else {
-    			System.out.println("아래에 블럭 있음");
     			isStop = true;
     			checkGameOver();
     		}
     	} else {
-    		System.out.println("바닥 도착");
     		isStop = true;
     		checkGameOver();
     	}
@@ -111,15 +97,7 @@ public abstract class Block implements Serializable {
 
     // 가장 아래 빈 공간 확인 =================================================
     private int checkTheLowestPositon() {
-		int aNum;
 		playGroundArr[a[0]][a[1]].getBackground();
-		
-		
-		int bNum;
-		int cNum;
-		int dNum;
-		
-		
 		return 4;
 	}
     
@@ -290,5 +268,3 @@ public abstract class Block implements Serializable {
 	}
     
 }
-
-
