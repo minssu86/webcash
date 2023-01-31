@@ -1,6 +1,6 @@
 # 3차 평가 (통신 과제)
 Only pojo 기반 프로그램 개발
-
+git test
 - 민수 ( Battle Tetris )
     
     ### 1 단계 목표 (MVP)
